@@ -3,6 +3,7 @@ import auth from "../../Firebase/firebase.config";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   const [registerError, setRegisterError] = useState(null);
@@ -97,6 +98,7 @@ const Register = () => {
           </form>
         </div>
         {registerError && <p className="text-red-400">{registerError}</p>}
+        <p>Already have an account? Please<Link className="text-blue-400" to="/login"> Login</Link></p>
       </div>
     </div>
   );
