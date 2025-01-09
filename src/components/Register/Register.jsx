@@ -1,4 +1,8 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+} from "firebase/auth";
 import auth from "../../Firebase/firebase.config";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
@@ -11,10 +15,11 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const handleRegister = (e) => {
     e.preventDefault();
+    const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const accepted = e.target.terms.checked;
-    console.log(email, password,accepted);
+    console.log(name,email, password, accepted);
 
     //reset error
     setRegisterError(""); //jodi reset na kori tahole state ar vitor error ta roe jabe;
@@ -27,18 +32,32 @@ const Register = () => {
         "Your password should have at least one uper case characters."
       );
       return;
-    }
-    else if(!accepted){
-      setRegisterError('please accept our terms and condition')
+    } else if (!accepted) {
+      setRegisterError("please accept our terms and condition");
       return;
     }
     // cereate user
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
+      .then((result) => {
+        const user = result.user;
         console.log(user);
         setSuccess("User Created Successfully");
         toast.success(success);
+        //Update Profile
+        updateProfile(result.user, {
+          displayName:name,
+          photoURL: "https://example.com/jane-q-user/profile.jpg"
+        })
+        .then(()=>{
+          console.log('profile updated')
+        })
+        .catch(error=>{
+          console.error(error)
+        })
+        //send verification email
+        sendEmailVerification(result.user).then(() => {
+          alert("Please check your email and verify your account!");
+        });
       })
       .catch((error) => {
         console.error(error);
@@ -54,6 +73,14 @@ const Register = () => {
         </h2>
         <div className="flex justify-center">
           <form className="w-1/2 " onSubmit={handleRegister}>
+            <input
+              className="mb-4 w-full bg-white border rounded-md py-2 px-4"
+              type="text"
+              name="name"
+              id=""
+              required
+              placeholder="Enter your Name..."
+            />
             <input
               className="mb-4 w-full bg-white border rounded-md py-2 px-4"
               type="email"
@@ -98,7 +125,13 @@ const Register = () => {
           </form>
         </div>
         {registerError && <p className="text-red-400">{registerError}</p>}
-        <p>Already have an account? Please<Link className="text-blue-400" to="/login"> Login</Link></p>
+        <p>
+          Already have an account? Please
+          <Link className="text-blue-400" to="/login">
+            {" "}
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -27,7 +27,12 @@ const Login = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((result) => {
         console.log(result.user);
-        setSuccess("User login successfully.");
+        if(result.user.emailVerified){
+          setSuccess('User Logged in Successfull')
+        }
+        else{
+          alert('Please verify your email address.')
+        }
       })
       .catch((error) => {
         console.error(error);
